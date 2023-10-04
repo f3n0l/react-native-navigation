@@ -1,5 +1,5 @@
 import * as React from "react";
-import { StyleSheet, Text, TextInput, Button, View } from "react-native";
+import { StyleSheet, Text, TextInput, Button, View, FlatList, ActivityIndicator } from "react-native";
 import {
     NavigationContainer,
     useNavigation,
@@ -46,10 +46,51 @@ const SignUpScreen = () => {
     );
 };
 
+const FetchComponent = () => {
+    const [data, setData] = useState([]);
+    const [isLoading, setLoading] = useState(true);
+
+    const fetchData = async () => {
+        try {
+            const response = await fetch('https://jsonplaceholder.typicode.com/todos');
+            const json = await response.json();
+            setData(json);
+        } catch (error) {
+            console.error('Error fetching data: ', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            {isLoading ? (
+                <ActivityIndicator size="large" color="#0000ff" />
+            ) : (
+                <FlatList
+                    data={data}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={({ item }) => (
+                        <View style={{ padding: 10 }}>
+                            <Text>{`ID: ${item.id}`}</Text>
+                            <Text>{`Title: ${item.title}`}</Text>
+                        </View>
+                    )}
+                />
+            )}
+        </View>
+    );
+};
+
 const HomeScreen = () => {
     return (
         <View style={styles.layout}>
             <Text>Home Screen</Text>
+            <FetchComponent />
         </View>
     );
 };
